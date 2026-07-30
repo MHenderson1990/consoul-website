@@ -5,7 +5,7 @@ let sendContactMessage = async (req, res) => {
 
   try {
     await transporter.sendMail({
-      from: process.env.GMAIL_USER,
+      from: `"Consoul Studios" <${process.env.MAIL_FROM}>`,
       to: process.env.CONTACT_RECEIVER,
       replyTo: email,
       subject: `New contact form message from ${name}`,
