@@ -1,14 +1,13 @@
-const nodemailer = require('nodemailer');
+const { google } = require('googleapis');
 
-let transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,            // STARTTLS, not SSL
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_APP_PASSWORD,
-  },
-  connectionTimeout: 10000, // fail fast instead of hanging
-});
+let oAuth2Client = new google.auth.OAuth2(
+  process.env.GMAIL_CLIENT_ID,
+  process.env.GMAIL_CLIENT_SECRET,
+  'https://developers.google.com/oauthplayground'
+);
 
-module.exports = transporter;
+oAuth2Client.setCredentials({ refresh_token: process.env.GMAIL_REFRESH_TOKEN });
+
+let gmail = google.gmail({ version: 'v1', auth: oAuth2Client });
+
+module.exports = gmail;

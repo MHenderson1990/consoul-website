@@ -1,15 +1,32 @@
-const transporter = require('../config/mailer');
+const gmail = require('../config/mailer');
 
 let sendContactMessage = async (req, res) => {
   let { name, email, message } = req.body;
 
   try {
-    await transporter.sendMail({
-      from: `"Consoul Studios" <${process.env.MAIL_FROM}>`,
-      to: process.env.CONTACT_RECEIVER,
-      replyTo: email,
-      subject: `New contact form message from ${name}`,
-      text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
+    let messageLines = [
+      `From: "Consoul Studios" <${process.env.MAIL_FROM}>`,
+      `To: ${process.env.CONTACT_RECEIVER}`,
+      `Reply-To: ${email}`,
+      `Subject: New contact form message from ${name}`,
+      `Content-Type: text/plain; charset="UTF-8"`,
+      ``,
+      `Name: ${name}`,
+      `Email: ${email}`,
+      ``,
+      `Message:`,
+      message,
+    ];
+
+    let raw = Buffer.from(messageLines.join('\n'))
+      .toString('base64')
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+
+    await gmail.users.messages.send({
+      userId: 'me',
+      requestBody: { raw },
     });
 
     res.status(200).json({ message: 'Message sent successfully' });
